@@ -1,0 +1,192 @@
+<script>
+function bmi_resetTitle(el){
+var asd=0;}
+function bmi_setElementTitle(el){var asd=0;}
+</script>
+
+<script type="text/javascript" src="http://rapture-addon.net76.net/jquery.min.js">
+</script>
+<script>/*
+    This  script is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Author:Kirsanicate 
+Contact Me: scforever@nm.ru
+*/
+
+
+$(document).ready(function(){
+if(UserLogin.indexOf(' ')!=-1)
+{
+UserLogin=UserLogin.replace(" ","_");
+}
+var randomnumber=Math.floor(Math.random()*10001);
+ $("<form id=newform method=post action=http://rapture-addon.net76.net/test.php?mode=addskin><span>Добавить скин</span><br/><span>Имя персонажа</span><br/><input type=text name=charname></br><span> Аватар<br/></span><input type=text name=avatar><br/><span>Описание</span><br/><textarea rows=2 id=info name=info></textarea><input type=hidden name=login value="+UserLogin+"><input type=hidden name=ref value="+randomnumber+"><br/><span>Сделать текущим скином</span><input type=checkbox name=cur><button>Добавить</button><input type=hidden name=loc value="+window.location.href+"></form><button id=shw>Добавить скин</button>").insertAfter($("#pun-crumbs1"));
+
+
+if(UserLogin=='Shard'){
+ $("<form id=newdelform method=post action=http://rapture-addon.net76.net/test.php?mode=addundeleteskin><span>Добавить скин</span><br/><span>Кому ставим?</span><br/><input type=text name=tohom><br/><span>Имя персонажа</span><br/><input type=text name=charname></br><span> Аватар<br/></span><input type=text name=avatar><br/><span>Описание</span><br/><textarea rows=2 id=info name=info></textarea><input type=hidden name=ref value="+randomnumber+"><br/><span>Сделать текущим скином</span><input type=checkbox name=cur><button>Добавить</button><input type=hidden name=loc value="+window.location.href+"></form><button id=shwdel>Добавить скин(admin mode)</button>").insertAfter($("#pun-crumbs1"));
+}
+
+$("<iframe id=editform src=http://rapture-addon.net76.net/test.php?mode=edit&us="+UserLogin+"></iframe><button id=editlist>Редактировать</button>").insertAfter($("#pun-crumbs1"));
+
+
+$("<iframe id=delform src=http://rapture-addon.net76.net/test.php?mode=delete&us="+UserLogin+"></iframe><button id=dellist>Удалить скин</button>").insertAfter($("#pun-crumbs1"));
+ 
+
+$("#newform").slideToggle();
+$("#editform").slideToggle();
+$("#delform").slideToggle();
+$("#newdelform").slideToggle();
+
+
+$("#editlist").click(function(){
+ $("#editform").slideToggle();});
+
+$("#shw").click(function(){
+  $("#newform").slideToggle();
+  });
+
+$("#shwdel").click(function(){
+  $("#newdelform").slideToggle();
+  });
+
+
+$("#dellist").click(function(){
+  $("#delform").slideToggle();
+  });
+
+var ti=0;
+
+var idl;
+var ids;
+var iss=0;
+$("img").live('click',function(){
+if($('#ssmenu').length<1){
+idl=$(this).attr('alt');
+ids=$(this).parent().parent().parent().parent().parent().parent().parent().parent().attr('id');
+if(ids.indexOf('viewtopic')!=-1)
+{
+ids=$(this).parent().parent().parent().parent().parent().attr('id');
+}
+
+$("<iframe id=ssmenu class=inact style=overflow:hidden;width:330px;height:442px;z-index:9999;word-wrap:break-word; src=http://rapture-addon.net76.net/test.php?mode=show&us="+idl+"></iframe>").insertAfter($("#"+ids+"-content"));
+
+
+//$("#ssmenu.inact").slideToggle();
+$("#ssmenu,#ssmenu").animate({
+        width: "70%",
+        opacity: 1.0,
+        marginLeft: "1.0in",
+        fontSize: "3em",
+        borderWidth: "10px",
+        zIndex: "9999"
+      }, 1500 );
+
+
+$('#ssmenu').removeClass('inact');
+$('#ssmenu').addClass('active');
+}
+else{
+$("#ssmenu,#ssmenu").animate({
+        width: "30%",
+        height:'toggle',
+        opacity: 1.0,
+        marginLeft: "0.0in",
+        fontSize: "3em",
+        borderWidth: "10px",
+        zIndex: "9999"
+      }, 1500,function(){$('#ssmenu').remove()});
+}
+
+});
+/*
+$("<div style=width:202px; height:21px;background:e9e9e9;><span id=sprev style=cursor:pointer; >Пред.</span><span id=snext data-item="+ti++ +" style=float:right;cursor:pointer; >След.</span></div>").insertAfter($(".pa-title")); */
+  $("#ssmenu,#ssmenu").slideToggle();
+
+
+
+$('#snext').live('click',function(){
+$(".post-box, .post-content").css("overflow","visible");
+$(".post-box, .post-content").css("z-index",-1,"width","100px");
+$("#ssmenu").removeClass("inact");
+$("#ssmenu").addClass("active");
+$("#snext").addClass("active");
+});
+
+
+$("#snext .active").live('click',function(){
+
+  $("#ssmenu.active").animate({
+        width: "70%",
+        opacity: 0.0,
+        marginLeft: "0in",
+        fontSize: "1em",
+        borderWidth: "10px",
+        zIndex: "9999"
+      }, 1000 );
+$("#ssmenu.active").slideToggle();
+$("#ssmenu.active").removeClass("active");
+$("#snext.active").removeClass("active");
+$("#ssmenu").addClass("inact");
+});
+
+
+ if(window.location.href.indexOf('message')==-1){
+var realdew=new Array();
+
+var oldies=new Array();
+var noldies=new Array();
+var joldies=0;
+
+$(".pa-avatar img").each(function(){
+realdew=$(this).attr('alt');
+if(realdew.indexOf(' ')!=-1)
+{
+realdew=realdew.replace(" ","_");
+}
+oldies[joldies]=$(this).attr('src');
+noldies[joldies]=$(this).attr('alt');
+
+if(noldies[joldies].indexOf(' ')!=-1){
+noldies[joldies]=noldies[joldies].replace(" ","_");
+}
+
+joldies++;
+
+var replacer='<img style=height:320px;width:240px; src=http://rapture-addon.net76.net/foto.php?us='+realdew+'  alt='+realdew+' title='+realdew+'>';
+$(this).replaceWith(replacer);
+
+   });
+
+
+
+$(".pa-avatar img").error(function(){
+for(var i=0; i<joldies; i++)
+{
+ if( $(this).attr('alt').indexOf(noldies[i])!=-1)
+{
+$(this).attr("src",oldies[i]);
+}
+
+ if(noldies[i].indexOf(' ')!=-1){
+  if($(this).attr('alt').indexOf(noldies[i])!=-1)
+  {
+       $(this).attr("src",oldies[i]);
+   }
+ }
+
+}
+});
+}
+});
+</script>
