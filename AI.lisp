@@ -1,8 +1,6 @@
 (defvar self nil)
 (defvar s_mood (random 10)) ; s is for self, self mood, initially is a random number from 0 to 10, where 0 is awful.
 
-
-
 (setf self nil)
 (setf self (list "Self" 0 0))
 
@@ -25,6 +23,11 @@
 (defparameter *verb* (make-hash-table))
 (defparameter *opr* (make-hash-table))
 (defparameter *patterns* (make-hash-table))
+
+(defparameter *unspecified* (make-hash-table))
+
+
+
 (setf (gethash '0 *patterns*) "0")
 (defparameter *questions* (make-hash-table)) ; hash-table for everything, that have a question.
 
@@ -71,7 +74,15 @@ Not working
 |#
 
 
-(defun command_parser(str)
+(defun text_parser(str)
+  (declare (optimize (speed 3) (space 3) (safety 1) (debug 0)))
+   (let ((res_string))
+     
+    (setf res_string (subseq str 0 (position #\. str)))))
+         
+
+
+(defun command_parser(str &optional key)
   (declare (optimize (speed 3) (space 3) (safety 0) (debug 0)))
    (let ((str_leng 0)
        (wh_spc nil)
@@ -79,26 +90,36 @@ Not working
   (loop for i from 0 upto (- (length str) 1) collect i do
    (if (EQUAL (aref str i) #\Space)
        (push-end i wh_spc)))
+   (if (not (= (length wh_spc) 0))
      (loop for i from 0 upto (- (length wh_spc) 1) collect i
      do
      (if (= i 0)
-       (if (not (EQUAL (subseq str 0 (elt wh_spc i)) ""))
-      (push-end (subseq str 0 (elt wh_spc i)) word_list)))
+      (push-end  str word_list))
       (if (> i 0)
        (if (not (EQUAL (subseq str (+ (elt wh_spc (- i 1)) 1) (elt wh_spc i)) ""))
         (push-end (subseq str (+ (elt wh_spc (- i 1)) 1) (elt wh_spc i)) word_list)))
        (if (= i (- (length wh_spc) 1))
           (if (not (EQUAL (subseq str (+ (elt wh_spc i) 1) (length str)) ""))
-            (push-end (subseq str (+ (elt wh_spc i) 1) (length str)) word_list)))) 
+            (push-end (subseq str (+ (elt wh_spc i) 1) (length str)) word_list)))))
+     (if (= (length wh_spc) 0)
+       (push str word_list))
  (loop for i from 0 upto (- (length  word_list) 1) collect i
- do
- (command_search (elt word_list i)))))
+do
+ (command_search (elt word_list i))
+ (print i)
+ )
+ ;(if (EQUAL key "add")
+  ; (loop for i from 0 upto (- (length word_list) 1) collect i
+ ;   do
+;    (add_to_unspecified  (elt word_list i))))
+   ; (add_to_unspecified word_list))
+ )) 
 
 ;  (print  wh_spc)
- ; (print (length wh_spc))
+ ;(print (length wh_spc))
   ;  (setf str_leng (length str))
    ; (print str_leng)
-  ;(print word_list)))
+ ; (print word_list)))
        
 
 #| In future use defmethod with :before and :after methods. This will decrease size of source code and also may optimize search engine. |#
@@ -116,14 +137,33 @@ Not working
 (defun command_search(str)
   #|TODO: сделать поиск слов в базе, если находим глагол, значит за ним должны следовать указатели, их и подставляем в функцию глагола. То есть, анализируем, ищем схожие глаголы, забиваем данные.
 Либо же, делаем анализ текста, потом - составляем предложение -указание по шаблону, к примеру - что делать, кому, с чем
-          |#
+1 - for definition (addition)
+2 - for verb
+3 - for noun
+4 - for objective (pointers)
+
+So in result we will have some patterns for search.
+For example, proper sentences in English builds in this way
+
+Noun + Verb + Additive(adjective/addition?) + Objective
+
+So result pattern will be like ("3", "2", "1", "4")
+
+ or
+
+Objective + Noun + Verb + Addjective?
+
+Result pattern is ("4", "3", "2", "1")
+ 
+ 
+|#
 (let ((cycle 0)
       (result_pattern nil))
     (if (= cycle 0)
       (loop for def_srch being the hash-keys in *definitions* using (hash-value def_def)
       do 
       (if (EQUAL str def_def)
-        (progn (def_search str)(setf cycle -1) (push def_def result_pattern)
+        (progn (def_search str)(setf cycle -1) (push 1 result_pattern)
         ))
        (if (not (EQUAl str def_def))
           (incf cycle))))
@@ -131,7 +171,7 @@ Not working
       (loop for verb_srch being the hash-keys in *verb* using (hash-value verb_def)
       do 
       (if (EQUAL str verb_def)
-        (setf cycle -1))
+        (progn (setf cycle -1) (push-end 2 result_pattern )))
        (if (not (EQUAl str verb_def))
           (incf cycle))))
           (if (= cycle 2)
@@ -147,7 +187,16 @@ Not working
       (if (EQUAL str point_def)
         (setf cycle -1))
        (if (not (EQUAl str point_def))
-          (incf cycle))))))
+          (incf cycle))))
+     (if (= cycle 5) ; "Magic 5" - trace why cycle is incremented twice
+       (add_to_unspecified str))   
+    ))
+
+
+(defun add_to_unspecified(str)
+ (setf (gethash str *unspecified*) str)
+  )
+
 
 ;(defun trash_search(str)
  ; (loop for tr_srch being the hash-keys in *trash* using (hash-value tr_def)
@@ -162,8 +211,9 @@ Not working
   (if  (EQUAL #\? (aref str (- (length str) 1)))
     (print "It is question!"))
     (if (EQUAL #\. (aref str (- (length str) 1)))
-      (print "It is statement!"))
+      (print "It's a statement"))
 )
+
 
 (defun pattern_creator(str)
   (let ((p_id 0))
@@ -183,6 +233,9 @@ Not working
 )
 
 
+(defun message_analitics(str)
+  (message_type str)
+   (command_parser str))
 
 
 #| Answer block |#
