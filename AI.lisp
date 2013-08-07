@@ -1,8 +1,13 @@
 (defvar self nil)
 (defvar s_mood (random 10)) ; s is for self, self mood, initially is a random number from 0 to 10, where 0 is awful.
+(defvar s_laziness 0)
+(defvar s_fatigue 0)
+
 
 (setf self nil)
 (setf self (list "Self" 0 0))
+
+(defparameter *list_of_hashes* (make-hash-table))
 
 #|---- Deprecated ---- |#
 (defparameter *definitions* (make-hash-table))
@@ -24,11 +29,21 @@
 (defparameter *opr* (make-hash-table))
 (defparameter *patterns* (make-hash-table))
 
+(defparameter *word_mood_rating* (make-hash-table))
+(defparameter *word_usage_rating* (make-hash-table))
+
+(defparameter *word_rating* (make-hash-table))
+
+(defparameter *word_combinations* (make-hash-table))
+
+
 (defparameter *unspecified* (make-hash-table))
 
 
 
 (setf (gethash '0 *patterns*) "0")
+
+
 (defparameter *questions* (make-hash-table)) ; hash-table for everything, that have a question.
 
 (defparameter *mood_modifiers* (make-hash-table)) ;There is only one table for mood modifiers, because we estimate everything from our point of view
@@ -39,6 +54,26 @@
 (defvar test_x nil)
 
 (load "~/ling_base.lisp")
+(load "~/instance_functions.lisp")
+(load "~/creative_functions.lisp")
+
+(defun attributes_analyzer()
+  (let ((start_mood s_mood)
+        (start_fatigue s_fatigue)
+        (start_laziness s_laziness)
+        (mood_mod 3)
+        (fatigue_mod 3)
+        (lazy_mod 3)
+        (cur_mood s_mood)
+        (cur_fatigue s_fatigue)
+        (cur_laziness s_laziness)) 
+     (if (integerp (/ start_mood mood_mod))
+      
+        (progn
+          
+       ))
+  )
+)
 
 
 (defun mood_analyzer()
@@ -48,16 +83,18 @@
  (if (<=  ( + s_mood value) 10) (setf s_mood (+ s_mood value))))
 
 
+
   
 (defmacro str_repl(name)
  ())
 
-(defun class_creator(class_name)
-   (setf (gethash class_name *classes*)
-    (defclass class_name()
- ( 
- (cslot1 :accessor cslot1 :initform nil)
-(cslot2 :accessor cslot2 :initform nil)))))
+
+
+;  (setf (gethash class_name *classes*)
+  ;  (defclass class_name()
+ ;( 
+ ;(cslot1 :accessor cslot1 :initform nil)
+;(cslot2 :accessor cslot2 :initform nil)))))
 
 
 #|Input Parsing |#
@@ -76,8 +113,7 @@ Not working
 
 (defun text_parser(str)
   (declare (optimize (speed 3) (space 3) (safety 1) (debug 0)))
-   (let ((res_string))
-     
+   (let ((res_string))     
     (setf res_string (subseq str 0 (position #\. str)))))
          
 
@@ -107,13 +143,7 @@ Not working
 do
  (command_search (elt word_list i))
  (print i)
- )
- ;(if (EQUAL key "add")
-  ; (loop for i from 0 upto (- (length word_list) 1) collect i
- ;   do
-;    (add_to_unspecified  (elt word_list i))))
-   ; (add_to_unspecified word_list))
- )) 
+ ))) 
 
 ;  (print  wh_spc)
  ;(print (length wh_spc))
@@ -135,6 +165,7 @@ do
           (ask_for_unk_command))))
 
 (defun command_search(str)
+
   #|TODO: сделать поиск слов в базе, если находим глагол, значит за ним должны следовать указатели, их и подставляем в функцию глагола. То есть, анализируем, ищем схожие глаголы, забиваем данные.
 Либо же, делаем анализ текста, потом - составляем предложение -указание по шаблону, к примеру - что делать, кому, с чем
 1 - for definition (addition)
@@ -215,16 +246,6 @@ Result pattern is ("4", "3", "2", "1")
 )
 
 
-(defun pattern_creator(str)
-  (let ((p_id 0))
-  (loop for pattern being the hash-values in *patterns* using (hash-key pattern_id)
-        do
-          (setf p_id  (+ 1 pattern_id)))
-          (setf (gethash p_id *patterns*) str) 
-))
-
-
-
 (defun pattern_search()
  (loop for pattern_srch being the hash-keys in *patterns* using (hash-value pattern_result)
    do
@@ -246,5 +267,31 @@ Result pattern is ("4", "3", "2", "1")
 (defun ask_for_unk_command()
  (print "Command Unknown, pl0x give m3 som3 definitions"))
 
-(defun add_definition(str defin)
-  (setf (gethash str *definitions*) defin))
+(defun prompt_read(prompt)
+  (format *query-io* "~a: " prompt)
+  (force-output *query-io*)
+  (read-line *query-io*))
+
+(defun ask_about_unspecified()
+  (loop for unknown being the hash-keys in *unspecified* using (hash-value unknown_word)
+        do
+        (let  ((cur_result nil))
+        (setf cur_result  (prompt_read "Is this a noun?"))          
+          (if (not (EQUAL (find "YES" (string-upcase cur_result)) NIL))
+            (setf (gethash unknown_word *noun* ) unknown_word)
+            (prompt_read "Is it a verb?"))
+          
+           (if (EQUAL (find "YES" (string-upcase cur_result)) NIL)
+          (progn  (setf cur_result (prompt_read "Is this a verb?"))
+               (print cur_result))
+
+            )
+          
+            (if (EQUAL (find "YES" (string-upcase cur_result)) NIL)
+              (setf cur_result (prompt_read "Is this an adj?")))
+          )
+        
+        ))
+
+(defun main()
+  (do () (()) ))
